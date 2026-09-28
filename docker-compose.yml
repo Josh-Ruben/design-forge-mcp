@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  python-server:
+    build:
+      context: ./python
+    command: python -m design_forge.server
+    ports:
+      - "8000:8000"
+
+  java-api:
+    build:
+      context: ./java
+    command: java -jar target/designforge-java-0.1.0.jar
+    ports:
+      - "8080:8080"

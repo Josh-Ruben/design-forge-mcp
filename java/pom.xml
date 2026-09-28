@@ -1,0 +1,64 @@
+from __future__ import annotations
+
+import asyncio
+from typing import Any
+
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("designforge")
+
+
+@mcp.tool()
+def create_design_session(project_name: str, design_type: str) -> dict[str, Any]:
+    """Create a new design session for engineering work."""
+    return {
+        "project_name": project_name,
+        "design_type": design_type,
+        "session_id": f"design-{project_name.lower().replace(' ', '-')}-{abs(hash(design_type))}",
+        "status": "created",
+    }
+
+
+@mcp.tool()
+def generate_parametric_model(model_name: str, dimensions: dict[str, float]) -> dict[str, Any]:
+    """Generate a parametric model specification."""
+    return {
+        "model_name": model_name,
+        "dimensions": dimensions,
+        "status": "ready_for_generation",
+        "summary": f"Model '{model_name}' is ready with {len(dimensions)} parameters.",
+    }
+
+
+@mcp.tool()
+def inspect_model(model_name: str) -> dict[str, Any]:
+    """Inspect a generated model and summarize its components."""
+    return {
+        "model_name": model_name,
+        "status": "inspected",
+        "components": ["body", "mounting_holes", "assembly_joints"],
+        "warnings": [],
+    }
+
+
+@mcp.tool()
+def export_design(model_name: str, format_name: str = "step") -> dict[str, Any]:
+    """Export a design asset to a supported format."""
+    valid = {"step", "stl", "obj", "png"}
+    if format_name.lower() not in valid:
+        raise ValueError(f"Unsupported export format: {format_name}")
+
+    return {
+        "model_name": model_name,
+        "format": format_name.lower(),
+        "output_path": f"exports/{model_name}.{format_name.lower()}",
+        "status": "exported",
+    }
+
+
+def main() -> None:
+    asyncio.run(mcp.run())
+
+
+if __name__ == "__main__":
+    main()
